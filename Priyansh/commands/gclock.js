@@ -1,9 +1,8 @@
 const fs = require("fs");
 const path = require("path");
-const config = require("../../config.json"); // ADMINBOT yahan se le raha hai
+const config = require("../../config.json");
 
 const LOCKS_FILE = path.join(__dirname, "..", "..", "locks.json");
-const cooldown = new Map();
 
 function loadLocks() {
   try {
@@ -27,27 +26,20 @@ function ensureThread(threadID) {
 
 module.exports.config = {
   name: "gclock",
-  version: "1.1",
-  hasPermission: 1,
+  version: "1.0",
+  hasPermission: 2,
   credits: "Anurag Mishra",
-  description: "Lock group name (admin only)",
+  description: "Lock group name (ADMINBOT only)",
   commandCategory: "group",
   usages: "[title/off]",
   cooldowns: 5,
 };
 
 module.exports.run = async ({ api, event, args }) => {
-  // ✅ Only ADMINBOT allowed
+  // ✅ Only ADMINBOT can run
   if (event.senderID !== config.ADMINBOT) {
-    return api.sendMessage("❌ Ye command sirf ADMINBOT ke liye hai.", event.threadID);
+    return api.sendMessage("❌ Bhai, ye command sirf ADMINBOT ke liye hai.", event.threadID);
   }
-
-  // ✅ Cooldown check
-  const last = cooldown.get(event.senderID) || 0;
-  if (Date.now() - last < 5000) {
-    return api.sendMessage("⚠️ Bhai thoda ruk ja, cooldown chal raha hai (5s).", event.threadID);
-  }
-  cooldown.set(event.senderID, Date.now());
 
   const data = loadLocks();
   const tRec = ensureThread(event.threadID);
