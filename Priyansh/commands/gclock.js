@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const config = require("../../config.json");
+const config = require("../../config.json"); // Yahan ADMINBOT UID pada h
 
 const LOCKS_FILE = path.join(__dirname, "..", "..", "locks.json");
 
@@ -18,7 +18,7 @@ function saveLocks(data) {
 function ensureThread(threadID) {
   const data = loadLocks();
   if (!data.threads[threadID]) {
-    data.threads[threadID] = { gclock: { enabled: false, title: "" }, nicklock: { enabled: false, name: "" } };
+    data.threads[threadID] = { gclock: { enabled: false, title: "" } };
     saveLocks(data);
   }
   return data.threads[threadID];
@@ -29,16 +29,16 @@ module.exports.config = {
   version: "1.0",
   hasPermission: 2,
   credits: "Anurag Mishra",
-  description: "Lock group name (ADMINBOT only)",
+  description: "Lock group name (Admin only)",
   commandCategory: "group",
   usages: "[title/off]",
   cooldowns: 5,
 };
 
 module.exports.run = async ({ api, event, args }) => {
-  // ✅ Only ADMINBOT can run
+  // Sirf config me padi UID hi access kare
   if (event.senderID !== config.ADMINBOT) {
-    return api.sendMessage("❌ Bhai, ye command sirf ADMINBOT ke liye hai.", event.threadID);
+    return api.sendMessage("❌ Bhai ye command sirf meri UID se hi chalti hai.", event.threadID);
   }
 
   const data = loadLocks();
@@ -66,7 +66,7 @@ module.exports.run = async ({ api, event, args }) => {
   saveLocks(data);
 
   api.setTitle(title, event.threadID, (err) => {
-    if (err) return api.sendMessage("❌ Bot admin nahi hai, title set nahi kar paaya.", event.threadID);
+    if (err) return api.sendMessage("Bot admin nahi hai, title set nahi kar paaya.", event.threadID);
     api.sendMessage(`✅ Group name locked to "${title}"`, event.threadID);
   });
 };
