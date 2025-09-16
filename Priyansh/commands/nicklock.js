@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+const config = require("../../config.json"); 
 
 const LOCKS_FILE = path.join(__dirname, "..", "..", "locks.json");
+
 function loadLocks() {
   try {
     if (!fs.existsSync(LOCKS_FILE)) return { threads: {} };
@@ -25,13 +27,17 @@ module.exports.config = {
   version: "1.0",
   hasPermission: 1,
   credits: "Anurag Mishra",
-  description: "Lock all nicknames in group",
+  description: "Lock all nicknames (admin only)",
   commandCategory: "group",
   usages: "[name/off]",
   cooldowns: 5,
 };
 
 module.exports.run = async ({ api, event, args }) => {
+  if (event.senderID !== config.ADMIN_UID) {
+    return api.sendMessage("❌ Bhai ye command sirf admin ke liye hai.", event.threadID);
+  }
+
   const data = loadLocks();
   const tRec = ensureThread(event.threadID);
 
@@ -62,4 +68,4 @@ module.exports.run = async ({ api, event, args }) => {
     members.forEach((uid) => api.changeNickname(name, uid, event.threadID));
     api.sendMessage(`✅ Nickname lock enabled. All set to "${name}"`, event.threadID);
   });
-};￼Enter
+};
