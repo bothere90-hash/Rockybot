@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+const config = require("../../config.json"); 
 
 const LOCKS_FILE = path.join(__dirname, "..", "..", "locks.json");
+
 function loadLocks() {
   try {
     if (!fs.existsSync(LOCKS_FILE)) return { threads: {} };
@@ -25,13 +27,17 @@ module.exports.config = {
   version: "1.0",
   hasPermission: 1,
   credits: "Anurag Mishra",
-  description: "Lock group name to a fixed title",
+  description: "Lock group name (admin only)",
   commandCategory: "group",
   usages: "[title/off]",
   cooldowns: 5,
 };
 
 module.exports.run = async ({ api, event, args }) => {
+  if (event.senderID !== config.ADMIN_UID) {
+    return api.sendMessage("❌ Bhai ye command sirf admin ke liye hai.", event.threadID);
+  }
+
   const data = loadLocks();
   const tRec = ensureThread(event.threadID);
 
