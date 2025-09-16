@@ -26,13 +26,13 @@ function ensureThread(threadID) {
 }
 
 module.exports.config = {
-  name: "nicklock",
+  name: "gclock",
   version: "1.1",
   hasPermission: 1,
   credits: "Anurag Mishra",
-  description: "Lock nicknames for all members (admin only)",
+  description: "Lock group name (admin only)",
   commandCategory: "group",
-  usages: "[name/off]",
+  usages: "[title/off]",
   cooldowns: 5,
 };
 
@@ -54,34 +54,27 @@ module.exports.run = async ({ api, event, args }) => {
 
   if (!args[0]) {
     return api.sendMessage(
-      `Nickname lock: ${tRec.nicklock.enabled ? `ON — "${tRec.nicklock.name}"` : "OFF"}`,
+      `Group name lock: ${tRec.gclock.enabled ? `ON — "${tRec.gclock.title}"` : "OFF"}`,
       event.threadID
     );
   }
 
   if (args[0].toLowerCase() === "off") {
-    tRec.nicklock.enabled = false;
-    tRec.nicklock.name = "";
+    tRec.gclock.enabled = false;
+    tRec.gclock.title = "";
     data.threads[event.threadID] = tRec;
     saveLocks(data);
-    return api.sendMessage("✅ Nickname lock disabled.", event.threadID);
+    return api.sendMessage("✅ Group name lock disabled.", event.threadID);
   }
 
-  const name = args.join(" ");
-  tRec.nicklock.enabled = true;
-  tRec.nicklock.name = name;
+  const title = args.join(" ");
+  tRec.gclock.enabled = true;
+  tRec.gclock.title = title;
   data.threads[event.threadID] = tRec;
   saveLocks(data);
 
-  api.getThreadInfo(event.threadID, (err, info) => {
-    if (err) return api.sendMessage("❌ Members list fetch nahi ho paayi.", event.threadID);
-
-    info.participantIDs.forEach((id) => {
-      if (id !== api.getCurrentUserID()) {
-        api.changeNickname(name, event.threadID, id);
-      }
-    });
-
-    api.sendMessage(`✅ Nickname locked to "${name}"`, event.threadID);
+  api.setTitle(title, event.threadID, (err) => {
+    if (err) return api.sendMessage("❌ Bot admin nahi hai, title set nahi kar paaya.", event.threadID);
+    api.sendMessage(`✅ Group name locked to "${title}"`, event.threadID);
   });
 };
